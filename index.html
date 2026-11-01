@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Real Estate Investment Academy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 font-sans text-slate-100">
+
+    <script>
+        // ==========================================
+        // 1. MODEL (VERİ YAPISI)
+        // ==========================================
+        class KursModel {
+            constructor(baslik, aciklama, fiyatUSD, egitmen) {
+                this.baslik = baslik;
+                this.aciklama = aciklama;
+                this.fiyatUSD = fiyatUSD;
+                this.egitmen = egitmen;
+            }
+        }
+
+
+        // ==========================================
+        // 2. VIEWMODEL (TÜM İŞLEMLER VE API BAĞLANTILARI)
+        // ==========================================
+        class EgitimViewModel {
+            constructor() {
+                this.kurslar = [];
+            }
+            async kurslariCek() {
+                try {
+                    const response = await fetch('/api/kurslar');
+                    const sonuc = await response.json();
+                    if (sonuc.success) {
+                        this.kurslar = sonuc.data;
+                    }
+                    return this.kurslar;
+                } catch (err) {
+                    console.error("Kurslar yüklenemedi:", err);
+                    return [];
+                }
+            }
+            async kursEkle(kursVerisi) {
+                try {
+                    const response = await fetch('/api/kurs-ekle', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(kursVerisi)
+                    });
+                    return await response.json();
+                } catch (err) {
+                    return { success: false, error: err.message };
+                }
+            }
+        }
+    </script>
+
+
+    <!-- ========================================== -->
+    <!-- 3. VIEW (GÖSTERİM VE ARAYÜZ) -->
+    <!-- ========================================== -->
+    <div id="egitimGorunumu" class="max-w-7xl mx-auto p-6">
+        <header class="bg-slate-800 border border-slate-700 shadow-xl rounded-2xl p-6 mb-10 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-3xl font-extrabold text-amber-400">Global Real Estate Academy</h1>
+                <p class="text-slate-400 text-sm mt-1">Professional Real Estate Investment Training for Foreigners</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="girisModalAc()" class="bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-semibold hover:bg-indigo-500 transition shadow-md">
+                    🔐 Sign In
+                </button>
+                <a href="https://wa.me/905XXXXXXXXX" target="_blank" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-semibold hover:bg-emerald-500 transition shadow-md">
+                    💬 WhatsApp Support
+                </a>
+            </div>
+        </header>
+
+        <!-- Sign In Modalı -->
+        <div id="loginModal" class="hidden fixed inset-0 bg-black/70 flex justify-center items-center p-4 z-50">
+            <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl w-full max-w-sm shadow-2xl">
+                <h3 class="text-xl font-bold text-amber-400 mb-4">Admin Sign In</h3>
+                <p class="text-xs text-slate-400 mb-4">Kullanıcı adı ve şifre ile giriş yapın (Varsayılan: kerimcan / kerimcan)</p>
+                <form id="loginForm" class="flex flex-col gap-4">
+                    <input type="text" id="username" placeholder="Kullanıcı Adı" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl text-white">
+                    <input type="password" id="password" placeholder="Şifre" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl text-white">
+                    <div class="flex justify-end gap-2 mt-2">
+                        <button type="button" onclick="girisModalKapat()" class="bg-slate-700 px-4 py-2 rounded-xl text-slate-300">İptal</button>
+                        <button type="submit" class="bg-indigo-600 text-white font-bold px-4 py-2 rounded-xl">Giriş Yap</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Admin İçerik / Kurs Ekleme Paneli -->
+        <div id="adminPanelModal" class="hidden fixed inset-0 bg-black/70 flex justify-center items-center p-4 z-50">
+            <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl w-full max-w-md shadow-2xl">
+                <h3 class="text-xl font-bold text-amber-400 mb-2">Admin Panel - Kurs & İçerik Ekle</h3>
+                <p class="text-xs text-slate-400 mb-4">Buradan kurs ekleyerek siteyi doldurabilir ve canlıya alabilirsiniz.</p>
+                <form id="kursForm" class="flex flex-col gap-4">
+                    <input type="text" id="baslik" placeholder="Kurs Başlığı (Masterclass)" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl text-white">
+                    <textarea id="aciklama" placeholder="Kurs Açıklaması" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl text-white"></textarea>
+                    <input type="number" id="fiyatUSD" placeholder="Fiyat (USD)" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl text-white">
+                    <input type="text" id="egitmen" placeholder="Eğitmen Adı" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl text-white">
+                    <div class="flex justify-end gap-2 mt-2">
+                        <button type="button" onclick="adminPanelKapat()" class="bg-slate-700 px-4 py-2 rounded-xl text-slate-300">Kapat</button>
+                        <button type="submit" class="bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl">Kaydet & Sitede Göster</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-6 text-slate-200">Available Training Programs</h2>
+            <div id="kursListesi" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+        </section>
+
+        <script>
+            // ==========================================
+            // 4. ÇALIŞTIRMA VE BAĞLANTI (EN AŞAĞIDA)
+            // ==========================================
+            const viewModel = new EgitimViewModel();
+
+            function girisModalAc() { document.getElementById('loginModal').classList.remove('hidden'); }
+            function girisModalKapat() { document.getElementById('loginModal').classList.add('hidden'); }
+            function adminPanelAc() { document.getElementById('adminPanelModal').classList.remove('hidden'); }
+            function adminPanelKapat() { document.getElementById('adminPanelModal').classList.add('hidden'); }
+
+            document.getElementById('loginForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const u = document.getElementById('username').value;
+                const p = document.getElementById('password').value;
+
+                if (u === 'kerimcan' && p === 'kerimcan') {
+                    alert('Giriş başarılı! Admin paneline yönlendiriliyorsunuz.');
+                    girisModalKapat();
+                    adminPanelAc();
+                } else {
+                    alert('Hatalı kullanıcı adı veya şifre!');
+                }
+            });
+
+            document.getElementById('kursForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const yeniKurs = {
+                    baslik: document.getElementById('baslik').value,
+                    aciklama: document.getElementById('aciklama').value,
+                    fiyatUSD: Number(document.getElementById('fiyatUSD').value),
+                    egitmen: document.getElementById('egitmen').value
+                };
+                const sonuc = await viewModel.kursEkle(yeniKurs);
+                if (sonuc.success) {
+                    alert('Kurs başarıyla eklendi ve veritabanına kaydedildi!');
+                    adminPanelKapat();
+                    window.location.reload();
+                } else {
+                    alert('Hata: ' + sonuc.error);
+                }
+            });
+
+            class EgitimViewBinding {
+                constructor(containerElement, vm) {
+                    this.container = containerElement;
+                    this.viewModel = vm;
+                    this.initBindings();
+                }
+                async initBindings() {
+                    const kurslar = await this.viewModel.kurslariCek();
+                    const listeDiv = this.container.querySelector('#kursListesi');
+                    
+                    if (kurslar.length === 0) {
+                        listeDiv.innerHTML = `<p class="text-slate-400 md:col-span-3 text-center py-10 bg-slate-800 rounded-2xl border border-slate-700">No active courses available right now. Click 'Sign In' above to add courses.</p>`;
+                        return;
+                    }
+
+                    listeDiv.innerHTML = kurslar.map(kurs => `
+                        <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl shadow-xl flex flex-col justify-between hover:border-amber-400/50 transition">
+                            <div>
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="px-3 py-1 bg-amber-400/10 text-amber-400 text-xs font-bold rounded-full uppercase tracking-wider">Masterclass</span>
+                                    <span class="text-xl font-black text-emerald-400">$${kurs.fiyatUSD} USD</span>
+                                </div>
+                                <h3 class="text-xl font-bold text-white mb-2">${kurs.baslik}</h3>
+                                <p class="text-slate-400 text-sm mb-6 leading-relaxed">${kurs.aciklama}</p>
+                            </div>
+                            <div class="border-t border-slate-700 pt-4 flex justify-between items-center">
+                                <span class="text-xs text-slate-400">Instructor: <strong class="text-slate-300">${kurs.egitmen}</strong></span>
+                                <button onclick="window.location.href='https://www.hoppapos.com/odeme-linkiniz?kurs=' + encodeURIComponent('${kurs.baslik}')" class="bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-sm hover:bg-amber-400 transition shadow-md">
+                                    Enroll Now (Pay)
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const gorunumElementi = document.getElementById('egitimGorunumu');
+                new EgitimViewBinding(gorunumElementi, viewModel);
+            });
+        </script>
+    </div>
+
+</body>
+</html>

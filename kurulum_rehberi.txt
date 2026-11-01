@@ -1,0 +1,23 @@
+================================================================================
+GLOBAL REAL ESTATE ACADEMY: SIFIRDAN CANLIYA ALMA VE YÖNETİM REHBERİ
+================================================================================
+
+1. MALİYETLER VE ABONELİKLER:
+- MongoDB Atlas: Kursları ve siparişleri saklar. M0 Free Tier (Ücretsiz) seçeneği tamamen bedavadır, para ödemezsiniz.
+- Render.com (Hosting): Sitenizin 7/24 çalışmasını sağlar. Ücretsiz planı uyku moduna geçer, sitenin anında açılması için Individual (Aylık ~$7) planı önerilir.
+- Ödeme Altyapısı (Hoppa POS / İyzico / Stripe): Şahıs vergi levhanızla yabancılardan dövizle ödeme almanızı sağlar. Sabit ücreti yoktur, sadece satış başı komisyon keser.
+
+2. KODLARIN İÇİNDEKİ BOŞLUKLARI DOLDURMA VE YÖNETİM (SIGN IN):
+- server.js: MongoDB bağlantınız hazırdır. Kendi bilgilerinizi yazabilirsiniz. `ODEME_API_KEY` kısmına ödeme anahtarınızı yazın.
+- index.html: Sağ üstteki WhatsApp numaranızı güncelleyin. Ödeme aracıcınızın (Hoppa POS / İyzico vb.) ödeme linkini butonlara ekleyin.
+- Admin Kullanıcı Adı ve Şifre Değiştirme: `index.html` dosyasının içindeki JavaScript alanında yer alan `u === 'kerimcan' && p === 'kerimcan'` kısmındaki 'kerimcan' yazan yerleri kendinize göre değiştirebilirsiniz.
+- Sign In & Sahibinden Paneli Mantığı: Sitenin sağ üstündeki "Sign In" butonuna tıklayarak belirlediğiniz kullanıcı adı ve şifreyle giriş yapabilirsiniz. Açılan panelden istediğiniz kursları, başlıkları ve içerikleri anında ekleyip sahibinden paneli mantığıyla veritabanına kaydedebilir ve sitede canlıya alabilirsiniz!
+
+3. LOKALDE TEST ETME:
+- Terminalde: npm install mongoose express cors
+- Başlatma: node server.js
+- Tarayıcı: http://localhost:3000
+
+4. GİTHUB VE RENDER 7/24 CANLIYA ALMA:
+- GitHub'da Private repo açın, kodları push edin.
+- Render.com'da Web Service olarak bağlayın, Build: npm install, Start: node server.js yapın ve yayınlayın!
